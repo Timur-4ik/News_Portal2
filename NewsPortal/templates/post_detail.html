@@ -15,6 +15,12 @@
     <h3>Статья: "{{ post.title|censor }}"</h3><br>
     <h6>Дата публикации: {{ post.time_creation|date:'d M Y h:m' }}</h6>
     <h6>Автор: {{ post.author }}</h6>
+    <h6>Категория:
+    {% for each in post.post_category.all %}
+        {{ each.name }}{% if not forloop.last %}, {% endif %}
+    {% empty %}
+        Нет категорий
+    {% endfor %}
     <br>
     {{ post.text|censor }}
     <br>
