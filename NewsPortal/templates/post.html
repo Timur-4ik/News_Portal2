@@ -1,0 +1,58 @@
+{% extends 'flatpages/default.html' %}
+
+{% load custom_filters %}
+{% load custom_tags %}
+
+{% block title %}
+    Post
+{% endblock title %}
+
+{% block content %}
+
+    <h3>Количество новостей: {{post|length}}</h3>
+    <h3>{% current_time '%b %d %Y' %}</h3>
+    <h3> {{ next_sale|default_if_none:"Только лучшие новости для вас!" }}</h3>
+    <hr>
+    {% if post %}
+        <table>
+            <tr>
+                <td>Дата публикации</td>
+                <td>Заголовок</td>
+                <td>Начало</td>
+                <td>Действия</td>  <!-- Добавили столбец для действий -->
+            </tr>
+            {% for posts in post %}
+                <tr>
+                    <td>{{ posts.time_creation }}</td>
+                    <td>{{ posts.title|censor }}</td>
+                    <td>{{ posts.text|censor|truncatechars:20 }}</td>
+                    <td>  <!-- Вставляем кнопку "Удалить" в новый столбец -->
+                        <a href="{% url 'post_delete' pk=posts.pk %}">Удалить</a>
+                        <a href="{% url 'post_update' pk=posts.pk %}">Редактировать</a> <!-- добавьте кнопку редактирования-->
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <h2>Скоро здесь что-то будет!</h2>
+    {% endif %}
+
+    {% if page_obj.has_previous %}
+        <a href="?{% url_replace page=1 %}">1</a>
+        {% if page_obj.previous_page_number != 1 %}
+            ...
+            <a href="?{% url_replace page=page_obj.previous_page_number %}">{{ page_obj.previous_page_number }}</a>
+        {% endif %}
+    {% endif %}
+
+    {{ page_obj.number }}
+
+    {% if page_obj.has_next %}
+        <a href="?{% url_replace page=page_obj.next_page_number %}">{{ page_obj.next_page_number }}</a>
+        {% if paginator.num_pages != page_obj.next_page_number %}
+            ...
+            <a href="?{% url_replace page=page_obj.paginator.num_pages %}">{{ page_obj.paginator.num_pages }}</a>
+        {% endif %}
+    {% endif %}
+
+{% endblock content %}

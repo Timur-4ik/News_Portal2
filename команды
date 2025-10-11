@@ -1,0 +1,139 @@
+В качестве результата задания подготовьте файл, в котором напишете список всех команд, запускаемых в Django shell.
+python manage.py shell
+from django.contrib.auth.models import User
+from news.models import Author, Category, Post, PostCategory, Comment
+
+Что вы должны сделать в консоли Django?
+
+1. Создать двух пользователей (с помощью метода User.objects.create_user).
+
+>>> user1 = User.objects.create(username='Timur')
+>>> user2 = User.objects.create(username='Andal')
+
+
+2. Создать два объекта модели Author, связанные с пользователями.
+
+>>> Author.objects.create(authorUser=user1)
+<Author: Author object (1)>
+
+>>> Author.objects.create(authorUser=user2)
+<Author: Author object (2)>
+
+
+3. Добавить 4 категории в модель Category.
+
+>>> Category.objects.create(name='game')
+<Category: Category object (1)>
+
+>>> Category.objects.create(name='IT')
+<Category: Category object (2)>
+
+>>> Category.objects.create(name='sport')
+<Category: Category object (3)>
+
+>>> Category.objects.create(name='politics')
+<Category: Category object (4)>
+
+
+4. Добавить 2 статьи и 1 новость.
+
+>>> Post.objects.create(author=Author.objects.get(authorUser=User.objects.get(username='Timur')), category_type='NW', title='news title 1', text='news text 1')
+<Post: article title 1>
+
+>>> Post.objects.create(author=Author.objects.get(authorUser=User.objects.get(username='Timur')), category_type='AR', title='article title 2', text='article text 2')
+<Post: article title 2>
+
+>>> Post.objects.create(author=Author.objects.get(authorUser=User.objects.get(username='Andal')), category_type='AR', title='article title 3', text='article text 3')
+<Post: article title 3>
+
+
+5. Присвоить им категории (как минимум в одной статье/новости должно быть не меньше 2 категорий).
+Получаем статьи:
+
+>>> p1 = Post.objects.get(pk=1)
+>>> p2 = Post.objects.get(pk=2)
+>>> p3 = Post.objects.get(pk=3)
+
+Получаем категории:
+>>> c1 = Category.objects.get(name='game')
+>>> c2 = Category.objects.get(name='IT')
+>>> c3 = Category.objects.get(name='sport')
+>>> c4 = Category.objects.get(name='politics')
+
+Присваиваем статьям категории (создаем связь):
+>>> p1.post_category.add(c1)
+>>> p1.post_category.add(c2)
+>>> p2.post_category.add(c2, c3)
+>>> p3.post_category.add(c3, c4)
+
+
+6. Создать как минимум 4 комментария к разным объектам модели Post (в каждом объекте должен быть как минимум один комментарий).
+
+>>> Comment.objects.create(commentUser=User.objects.get(username='Timur'), commentPost= Post.objects.get(pk=1), textComment='Comment text 1')
+<Comment: news title 1 - Timur>
+
+
+>>> Comment.objects.create(commentUser=User.objects.get(username='Timur'), commentPost= Post.objects.get(pk=2), textComment='Comment text 2')
+<Comment: article title 2 - Timur>
+
+
+>>> Comment.objects.create(commentUser=User.objects.get(username='Andal'), commentPost= Post.objects.get(pk=3), textComment='Comment text 3')
+<Comment: article title 3 - Andal>
+
+>>> Comment.objects.create(commentUser=User.objects.get(username='Andal'), commentPost= Post.objects.get(pk=1), textComment='Comment text 4')
+<Comment: news title 1 - Andal>
+
+
+7. Применяя функции like() и dislike() к статьям/новостям и комментариям, скорректировать рейтинги этих объектов.
+
+>>> Post.objects.get(pk=1).like()
+>>> Post.objects.get(pk=1).like()
+>>> Post.objects.get(pk=1).like()
+>>> Post.objects.get(pk=2).like()
+>>> Post.objects.get(pk=3).dislike()
+>>> Post.objects.get(pk=2).dislike()
+
+>>> Comment.objects.get(pk=1).like()
+>>> Comment.objects.get(pk=1).like()
+>>> Comment.objects.get(pk=2).dislike()
+>>> Comment.objects.get(pk=2).dislike()
+>>> Comment.objects.get(pk=3).dislike()
+>>> Comment.objects.get(pk=3).like()
+
+
+8. Обновить рейтинги пользователей.
+
+>>> Author.objects.get(authorUser=User.objects.get(username='Timur')).update_rating()
+>>> Author.objects.get(authorUser=User.objects.get(username='Andal')).update_rating()
+>>> a = Author.objects.get(authorUser=User.objects.get(username='Andal'))
+>>> a.ratingAuthor
+-3
+>>> Author.objects.get(authorUser=User.objects.get(username='Timur')).ratingAuthor
+9
+
+
+9. Вывести username и рейтинг лучшего пользователя (применяя сортировку и возвращая поля первого объекта).
+
+>>> best = Author.objects.all().order_by('-ratingAuthor').values('authorUser__username', 'ratingAuthor')[0]
+>>> print(best)
+{'authorUser__username': 'Timur', 'ratingAuthor': 9}
+
+
+10. Вывести дату добавления, username автора, рейтинг, заголовок и превью лучшей статьи, основываясь на лайках/дислайках к этой статье.
+
+>>> best_post = Post.objects.all().order_by('-rating').values('time_creation', 'author__authorUser__username', 'rating', 'title')[0]
+>>> print(best_post)
+{'time_creation': datetime.datetime(2025, 7, 8, 15, 13, 16, 970035, tzinfo=datetime.timezone.utc), 'author__authorUser__username': 'Timur', 'rating': 3, 'title': 'news title 1'}
+
+
+11. Вывести все комментарии (дата, пользователь, рейтинг, текст) к этой статье.
+
+>>> best_p = Post.objects.all().order_by('-rating')[0]
+>>> print(best_p)
+news title 1
+
+>>> comm_best_p = Comment.objects.filter(commentPost__id = best_p.id).values('timeComment', 'commentUser__username', 'ratingComm', 'textComment')
+>>> print(comm_best_p)
+<QuerySet [{'timeComment': datetime.datetime(2025, 7, 8, 15, 36, 26, 256404, tzinfo=datetime.timezone.utc), 'commentUser__username': 'Timur', 'ratingComm': 2, '
+textComment': 'Comment text 1'}, {'timeComment': datetime.datetime(2025, 7, 8, 15, 39, 21, 191693, tzinfo=datetime.timezone.utc), 'commentUser__username': 'Andal', 'ratingComm': 0, 'textComment': 'Comment text 4'}]>
+

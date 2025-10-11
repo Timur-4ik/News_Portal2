@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Запись подтверждена</title>
+</head>
+<body>
+    <h2>{{ appointment.author  }} Спасибо за запись!</h2>
+    <p>Вы записаны на {{ appointment.time_creation|date:"d-M-Y" }} по вопросу: {{ appointment.text|truncatechars:50 }}</p>
+</body>
+</html>

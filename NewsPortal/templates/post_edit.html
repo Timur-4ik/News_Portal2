@@ -1,0 +1,16 @@
+{% extends "flatpages/default.html" %}
+
+{% block content %}
+<h2>{{ view.object.pk|yesno:"Редактировать,Создать" }}</h2>
+
+  <a class="nav-link" href="/news/create/">  <button type="submit">Новость</button></a>
+<br>
+  <a class="nav-link" href="/articles/create/">  <button type="submit">Статья</button></a>
+<br>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Сохранить</button>
+</form>
+{% endblock %}
