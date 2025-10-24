@@ -1,12 +1,24 @@
+<!-- templates/message_new_post.html -->
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Запись подтверждена</title>
+    <meta charset="UTF-8">
 </head>
 <body>
-    <h2>{{ appointment.author  }} Спасибо за запись!</h2>
-    <p>Вы записаны на {{ appointment.time_creation|date:"d-M-Y" }} по вопросу: {{ appointment.text|truncatechars:50 }}</p>
+    <h2>Здравствуйте, {{ user.username }}!</h2>
+    <hr>
+    <p>Новая статья в твоём любимом разделе: <strong>
+        {% for category in post.post_category.all %}
+        {{ category.name }}{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+    </strong></p>
+    <h3>Тема: {{ post.title }}</h3>
+    <p>Текст: {{ post.text|slice:":50" }}{% if post.text|length > 50 %}...{% endif %}</p>
+    <hr>
+    <p>Дата публикации: {{ post.time_creation }}</p>
+    <hr>
+    <h4>Ссылка на статью</h4>
+    <a href="{{ post_url }}">Читать статью полностью</a>
 </body>
 </html>

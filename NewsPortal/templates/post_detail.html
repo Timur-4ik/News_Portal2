@@ -1,19 +1,14 @@
-<!--  наследуемся от шаблона default.html -->
 {% extends 'flatpages/default.html' %}
+{% load custom_filters %}
 
-{% load custom_filters %} <!-- не забываем заранее загружать наши фильтры! -->
-
-<!-- Название у нас будет из заголовка -->
 {% block title %}
     Статья "{{ post.title|censor }}"
 {% endblock title %}
 
-<!-- В контенте на странице мы выводим саму статью, айди которого было передано в адрес -->
 {% block content %}
-
     <br>
     <h3>Статья: "{{ post.title|censor }}"</h3><br>
-    <h6>Дата публикации: {{ post.time_creation|date:'d M Y h:m' }}</h6>
+    <h6>Дата публикации: {{ post.time_creation|date:'d M Y H:i' }}</h6>
     <h6>Автор: {{ post.author }}</h6>
     <h6>Категория:
     {% for each in post.post_category.all %}
@@ -21,9 +16,28 @@
     {% empty %}
         Нет категорий
     {% endfor %}
+    </h6>
     <br>
-    {{ post.text|censor }}
+    <h6>Текст: {{ post.text|censor }}</h6>
     <br>
+
+    <!-- Цикл по категориям, чтобы подписаться на каждую -->
+    {% for category in post.post_category.all %}
+        {% if user.is_authenticated and category.id in user_subscriptions %}
+            <!-- Пользователь подписан -->
+            <form method="post" action="{% url 'unsubscribe_from_category' category.id %}">
+                {% csrf_token %}
+                <button type="submit">Отменить подписку на {{ category.name }}</button>
+            </form>
+        {% else %}
+            <!-- Пользователь не подписан -->
+            <form method="post" action="{% url 'subscribe_to_category' category.id %}">
+                {% csrf_token %}
+                <button type="submit">Подписаться на {{ category.name }}</button>
+            </form>
+        {% endif %}
+    {% endfor %}
     <br>
-     <a href="{% url 'post_list' %}"><--Вернуться к новостям </a>
+
+    <a href="{% url 'post_list' %}"><-- Вернуться к новостям</a>
 {% endblock content %}
